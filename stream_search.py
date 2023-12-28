@@ -13,13 +13,13 @@ sites = {
     "Random Public APIs": "https://api.publicapis.org/random?title=",
 }
 
-# Add a drop-down for site selection
-site_name = st.selectbox("Select a site to search:", list(sites.keys()))
+# Add a drop-down for site selection in the sidebar
+site_name = st.sidebar.selectbox("Select a site to search:", list(sites.keys()))
 
 # Get user input
 search_terms = st.text_input("Enter search terms (separated by spaces or commas): ")
 
-if st.button("Search"):
+if st.sidebar.button("Search"):
     if search_terms:  # Check if search box is not empty
         # Initialize an empty DataFrame in session state
         st.session_state.df = pd.DataFrame()
@@ -67,7 +67,7 @@ if "df" in st.session_state and not st.session_state.df.empty:
         st.warning("No columns selected. Please select at least one column.")
     else:
         # Add a button for user validation
-        if st.button("Generate Markdown"):
+        if st.sidebar.button("Generate Markdown"):
             # Convert selected columns of DataFrame to Markdown and allow user to copy it
             markdown = st.session_state.df[columns_to_export].to_markdown()
             st.text_area("Markdown Table", markdown, height=300)
