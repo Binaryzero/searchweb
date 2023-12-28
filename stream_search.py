@@ -5,12 +5,15 @@ import requests
 import streamlit as st
 
 # Set page configuration to wide layout
-st.set_page_config(layout="wide")
-
+st.set_page_config(
+   page_title="Lookup Tool",
+   initial_sidebar_state="expanded",
+   layout="wide",
+)
 # Define a dictionary of sites to search
 sites = {
-    "Public APIs": "https://api.publicapis.org/entries?title=",
-    "Random Public APIs": "https://api.publicapis.org/random?title=",
+    "Public APIs": ("https://api.publicapis.org/entries?title=", ""),
+    "Random Public APIs": ("https://api.publicapis.org/random?title=", ""),
 }
 
 # Add a drop-down for site selection in the sidebar
@@ -24,13 +27,15 @@ if st.sidebar.button("Search"):
         # Initialize an empty DataFrame in session state
         st.session_state.df = pd.DataFrame()
 
-        # Split the input into a list of search terms
-        search_terms = [term.strip() for term in re.split(",| ", search_terms)]
+        # Replace commas with spaces, then split on spaces
+        search_terms = [re.sub(r'\W+', '', term.strip().lower()) for term in search_terms.replace(',', ' ').split()]
 
         with st.spinner("Searching..."):  # Display a loading spinner
             for term in search_terms:
                 # Send GET request to the selected site
-                response = requests.get(f"{sites[site_name]}{term}")
+                base_url, url_suffix = sites[site_name]
+                response = requests.get(f"{base_url}{term}{url_suffix}")
+
 
                 # Load response into DataFrame
                 data = response.json()
