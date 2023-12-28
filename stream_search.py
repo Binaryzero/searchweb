@@ -3,7 +3,7 @@ import re
 import pandas as pd
 import requests
 import streamlit as st
-
+HEADERS = ""
 # Set page configuration to wide layout
 st.set_page_config(
    page_title="Lookup Tool",
@@ -36,7 +36,7 @@ if st.sidebar.button("Search"):
                 # Send GET request to the selected site
                 base_url, url_suffix = sites[site_name]
                 try:
-                    response = requests.get(f"{base_url}{term}{url_suffix}")
+                    response = requests.get(f"{base_url}{term}{url_suffix}", headers=HEADERS, timeout=120)
                     response.raise_for_status()  # Raises stored HTTPError, if one occurred.
                 except requests.exceptions.HTTPError as http_err:
                     st.error(f"HTTP error occurred: {http_err}")
@@ -45,7 +45,7 @@ if st.sidebar.button("Search"):
                 else:
                     # Load response into DataFrame
                     data = response.json()
-                    new_df = pd.DataFrame(data["entries"])
+                    new_df = pd.DataFrame(data["data"])
 
                     # Check if the DataFrame is empty
                     if new_df.empty:
