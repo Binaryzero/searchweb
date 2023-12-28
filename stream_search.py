@@ -3,12 +3,13 @@ import re
 import pandas as pd
 import requests
 import streamlit as st
+
 HEADERS = ""
 # Set page configuration to wide layout
 st.set_page_config(
-   page_title="Lookup Tool",
-   initial_sidebar_state="expanded",
-   layout="wide",
+    page_title="Lookup Tool",
+    initial_sidebar_state="expanded",
+    layout="wide",
 )
 # Define a dictionary of sites to search
 sites = {
@@ -28,7 +29,10 @@ if st.sidebar.button("Search"):
         st.session_state.df = pd.DataFrame()
 
         # Replace commas with spaces, then split on spaces
-        search_terms = [re.sub(r'\W+', '', term.strip().lower()) for term in search_terms.replace(',', ' ').split()]
+        search_terms = [
+            re.sub(r"\W+", "", term.strip().lower())
+            for term in search_terms.replace(",", " ").split()
+        ]
 
         # ...
         with st.spinner("Searching..."):  # Display a loading spinner
@@ -36,7 +40,9 @@ if st.sidebar.button("Search"):
                 # Send GET request to the selected site
                 base_url, url_suffix = sites[site_name]
                 try:
-                    response = requests.get(f"{base_url}{term}{url_suffix}", headers=HEADERS, timeout=120)
+                    response = requests.get(
+                        f"{base_url}{term}{url_suffix}", headers=HEADERS, timeout=120
+                    )
                     response.raise_for_status()  # Raises stored HTTPError, if one occurred.
                 except requests.exceptions.HTTPError as http_err:
                     st.error(f"HTTP error occurred: {http_err}")
@@ -45,7 +51,7 @@ if st.sidebar.button("Search"):
                 else:
                     # Load response into DataFrame
                     data = response.json()
-                    new_df = pd.DataFrame(data["data"])
+                    new_df = pd.DataFrame(data["entries"])
 
                     # Check if the DataFrame is empty
                     if new_df.empty:
@@ -53,7 +59,7 @@ if st.sidebar.button("Search"):
                     else:
                         # Concatenate the new data with the existing DataFrame
                         st.session_state.df = pd.concat([st.session_state.df, new_df])
-        st.success("Search completed.")
+        # st.success("Search completed.")
     else:
         st.warning("Please enter at least one search term.")
 
@@ -79,12 +85,11 @@ if "df" in st.session_state and not st.session_state.df.empty:
 
     # Check if any column is selected
     if not columns_to_export:
-        st.warning("No columns selected. Please select at least one column.")
+        # st.warning("No columns selected. Please select at least one column.")
+        pass  # Placeholder indentation
     else:
         # Add a button for user validation
         if st.sidebar.button("Generate Markdown"):
             # Convert selected columns of DataFrame to Markdown and allow user to copy it
             markdown = st.session_state.df[columns_to_export].to_markdown()
             st.text_area("Markdown Table", markdown, height=300)
-else:
-    st.warning("No data available. Please perform a search first.")
