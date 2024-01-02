@@ -11,3 +11,4 @@ __pycache__/
 *.pyd
 __pycache__/
 app.sh
+.vscode/settings.json
