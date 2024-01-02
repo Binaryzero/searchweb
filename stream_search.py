@@ -5,8 +5,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-THIS_DIR = Path(__file__).parent
-CSS_FILE = THIS_DIR / "style" / "style.css"
+CSS_FILE = "style.css"
 
 # Set page configuration to wide layout
 st.set_page_config(
@@ -27,13 +26,14 @@ sites = {
     },
 }
 
-# Add a drop-down for site selection in the sidebar
-site_name = st.sidebar.selectbox("Select a site to search:", list(sites.keys()))
 
 # Get user input
 search_terms = st.text_input("Enter search terms (separated by spaces or commas): ")
 
-if st.sidebar.button("Search"):
+# Add a drop-down for site selection
+site_name = st.selectbox("Select a site to search:", list(sites.keys()))
+
+if st.button("Search"):
     if search_terms:  # Check if search box is not empty
         # Initialize an empty DataFrame in session state
         st.session_state.df = pd.DataFrame()
@@ -106,8 +106,16 @@ if "df" in st.session_state and not st.session_state.df.empty:
         pass  # Placeholder indentation
     else:
         # Add a button for user validation
-        if st.sidebar.button("Generate Markdown"):
+        if st.button("Generate Markdown"):
             # Convert selected columns of DataFrame to Markdown and allow user to copy it
             markdown = st.session_state.df[columns_to_export].to_markdown()
             st.text_area("Markdown Table", markdown, height=300)
-            st.info("Copy the table and paste it in your Markdown document.")
+
+            # Add a button to generate HTML
+        if st.button("Generate HTML"):
+            # Convert selected columns of DataFrame to HTML and allow user to copy it
+            html = st.session_state.df[columns_to_export].to_html(index=False)
+            st.text_area("HTML Table", html, height=300)
+# Add a button to clear the search box
+# if st.button("Clear Search Box"):
+#    search_terms = ""
