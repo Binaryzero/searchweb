@@ -110,3 +110,4 @@ if "df" in st.session_state and not st.session_state.df.empty:
             # Convert selected columns of DataFrame to Markdown and allow user to copy it
             markdown = st.session_state.df[columns_to_export].to_markdown()
             st.text_area("Markdown Table", markdown, height=300)
+            st.info("Copy the table and paste it in your Markdown document.")
