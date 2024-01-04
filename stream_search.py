@@ -4,8 +4,8 @@ import pandas as pd
 import requests
 import streamlit as st
 
-CSS_FILE = "style.css"
 
+CSS_FILE = "style.css"
 # Set page configuration to wide layout
 st.set_page_config(
     page_title="Lookup Tool",
@@ -13,6 +13,12 @@ st.set_page_config(
     layout="wide",
     page_icon="favicon.png",
 )
+
+CSS_FILE = "style.css"
+# Apply custom CSS
+with open(CSS_FILE) as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 # Define a dictionary of sites to search
 sites = {
     "Public APIs": {
@@ -41,7 +47,7 @@ if st.button("Search"):
         if site_name == "CVE Lookup":
             # Keep hyphens for CVE Lookup
             search_terms = [
-                re.sub(r"[^\w-]+", "", term.strip().lower())
+                re.sub(r"[^\w-]+", "", term.strip())
                 for term in search_terms.replace(",", " ").split()
             ]
         else:
@@ -56,7 +62,10 @@ if st.button("Search"):
 
         # Make the HTTP request
         for term in search_terms:
-            response = requests.get(f"{base_url}{term}{url_suffix}", headers=headers)
+            with st.spinner(f'Searching for "{term}"...'):
+                response = requests.get(
+                    f"{base_url}{term}{url_suffix}", headers=headers
+                )
             # ...
             try:
                 response.raise_for_status()  # Raises stored HTTPError, if one occurred.
@@ -64,10 +73,58 @@ if st.button("Search"):
                 st.error(f"HTTP error occurred: {http_err}")
             except requests.exceptions.RequestException as err:
                 st.error(f"An error occurred: {err}")
+            # Load response into DataFrame
+            data = response.json()
+
+            if "vulnerabilities" in data:
+                vulnerabilities = data["vulnerabilities"]
+
+                data = []
+                for vuln in vulnerabilities:
+                    cve = vuln["cve"]
+                    cve_id = cve["id"]
+                    # source_identifier = cve["sourceIdentifier"]
+                    published = cve["published"]
+                    last_modified = cve["lastModified"]
+                    descriptions = [
+                        desc["value"]
+                        for desc in cve["descriptions"]
+                        if desc["lang"] == "en"
+                    ]
+                    description = descriptions[0] if descriptions else None
+                    base_scores = [
+                        metric["cvssData"]["baseScore"]
+                        for metric in cve["metrics"]["cvssMetricV31"]
+                    ]
+                    base_score = base_scores[0] if base_scores else None
+
+                data.append(
+                    [
+                        cve_id,
+                        # source_identifier,
+                        published,
+                        last_modified,
+                        description,
+                        base_score,
+                    ]
+                )
+
+                # Create a DataFrame from the data
+                new_df = pd.DataFrame(
+                    data,
+                    columns=[
+                        "CVE ID",
+                        # "Source Identifier",
+                        "Published",
+                        "Last Modified",
+                        "Description",
+                        "Base Score",
+                    ],
+                )
+            elif "entries" in data:
+                new_df = pd.DataFrame(data["entries"])
             else:
-                # Load response into DataFrame
-                data = response.json()
-            new_df = pd.DataFrame(data["entries"])
+                new_df = pd.DataFrame()
 
             # Check if the DataFrame is empty
             if new_df.empty:
@@ -107,7 +164,7 @@ if "df" in st.session_state and not st.session_state.df.empty:
         # Add a button for user validation
         if st.button("Generate Markdown"):
             # Convert selected columns of DataFrame to Markdown and allow user to copy it
-            markdown = st.session_state.df[columns_to_export].to_markdown()
+            markdown = st.session_state.df[columns_to_export].to_markdown(index=False)
             st.text_area("Markdown Table", markdown, height=300)
 
             # Add a button to generate HTML
