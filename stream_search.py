@@ -62,18 +62,17 @@ if st.button("Search"):
         # Make the HTTP request
         for term in search_terms:
             with st.spinner(f'Searching for "{term}"...'):
-                response = requests.get(
-                    f"{base_url}{term}{url_suffix}", headers=headers
-                )
-            # ...
-            try:
-                response.raise_for_status()  # Raises stored HTTPError, if one occurred.
-            except requests.exceptions.HTTPError as http_err:
-                st.error(f"HTTP error occurred: {http_err}")
-            except requests.exceptions.RequestException as err:
-                st.error(f"An error occurred: {err}")
-            # Load response into DataFrame
-            data = response.json()
+
+                @st.cache_data
+                def fetch_data(base_url, term, url_suffix, headers):
+                    response = requests.get(
+                        f"{base_url}{term}{url_suffix}", headers=headers
+                    )
+                    return response.json()
+
+                    # Call the fetch_data function and assign its return value to data
+
+            data = fetch_data(base_url, term, url_suffix, headers)
 
             if "vulnerabilities" in data:
                 vulnerabilities = data["vulnerabilities"]
@@ -102,7 +101,7 @@ if st.button("Search"):
                         cve_id,
                         # source_identifier,
                         published,
-                        last_modified,
+                        # last_modified,
                         description,
                         base_score,
                     ]
@@ -115,7 +114,7 @@ if st.button("Search"):
                         "CVE ID",
                         # "Source Identifier",
                         "Published",
-                        "Last Modified",
+                        # "Last Modified",
                         "Description",
                         "Base Score",
                     ],
@@ -140,7 +139,7 @@ if st.button("Search"):
 # Check if DataFrame is not empty
 if "df" in st.session_state and not st.session_state.df.empty:
     # Display the dataframe without the index
-    st.dataframe(st.session_state.df, hide_index=True)
+    st.dataframe(st.session_state.df, hide_index=True, use_container_width=True)
 
     # Create a list of columns
     columns = st.columns(len(st.session_state.df.columns.tolist()) + 1)
