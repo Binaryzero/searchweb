@@ -4,7 +4,6 @@ import pandas as pd
 import requests
 import streamlit as st
 
-
 CSS_FILE = "style.css"
 # Set page configuration to wide layout
 st.set_page_config(
@@ -122,8 +121,10 @@ if st.button("Search"):
                     ],
                 )
             elif "entries" in data:
+                pd.options.display.int_format = "{}".format
                 new_df = pd.DataFrame(data["entries"])
             else:
+                pd.options.display.int_format = "{}".format
                 new_df = pd.DataFrame()
 
             # Check if the DataFrame is empty
