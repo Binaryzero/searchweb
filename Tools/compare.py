@@ -4,13 +4,18 @@ import pandas as pd
 
 directory = "/path/to/directory"  # Replace with the actual directory path
 
-data_frames = []
-for filename in os.listdir(directory):
-    if filename.endswith(".csv"):  # Assuming the files are in CSV format
-        file_path = os.path.join(directory, filename)
-        df = pd.read_csv(file_path)
-        data_frames.append(df)
+# Get a sorted list of CSV filenames
+csv_filenames = sorted(
+    filename for filename in os.listdir(directory) if filename.endswith(".csv")
+)
 
+data_frames = []
+for filename in csv_filenames:
+    file_path = os.path.join(directory, filename)
+    df = pd.read_csv(file_path)
+    data_frames.append(df)
+
+# Rest of your code...
 # Compare data frames
 comparison_results = []
 for i in range(len(data_frames)):
