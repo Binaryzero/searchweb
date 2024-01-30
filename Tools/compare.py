@@ -15,17 +15,15 @@ for filename in csv_filenames:
     df = pd.read_csv(file_path)
     data_frames.append(df)
 
-# Rest of your code...
 # Compare data frames
 comparison_results = []
-for i in range(len(data_frames)):
-    for j in range(i + 1, len(data_frames)):
-        df1 = data_frames[i]
-        df2 = data_frames[j]
-        total_items = len(df1) + len(df2)
-        new_items = len(df2) - len(df1[df1.isin(df2)].dropna())
-        removed_items = len(df1) - len(df2[df2.isin(df1)].dropna())
-        comparison_results.append((i, j, total_items, removed_items, new_items))
+for i in range(len(data_frames) - 1):  # Subtract 1 to avoid going out of range
+    df1 = data_frames[i]
+    df2 = data_frames[i + 1]  # Compare with the next DataFrame
+    total_items = len(df1) + len(df2)
+    new_items = len(df2) - len(df1[df1.isin(df2)].dropna())
+    removed_items = len(df1) - len(df2[df2.isin(df1)].dropna())
+    comparison_results.append((i, i + 1, total_items, removed_items, new_items))
 
 # Print comparison results
 for result in comparison_results:
