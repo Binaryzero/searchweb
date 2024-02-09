@@ -1,4 +1,8 @@
 # Open the file in read mode
+from fileinput import filename
+
+import requests
+
 with open(filename, "r") as file:
     # Iterate over each line in the file
     for line in file:
