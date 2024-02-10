@@ -192,7 +192,7 @@ if st.button("Copy Translation to Clipboard"):
     if translated_metrics:
         for key, (description, explanation, mitigation) in translated_metrics.items():
             translation_text += (
-                f"{key} ({description}): {explanation}\nMitigation:{mitigation}\n\n"
+                f"{key} ({description}): {explanation}\nMitigation: {mitigation}\n\n"
             )
         pyperclip.copy(translation_text)
         st.success("Translation copied to clipboard!")
