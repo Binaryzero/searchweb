@@ -190,7 +190,7 @@ import pyperclip
 if st.button("Copy Translation to Clipboard"):
     translation_text = ""
     if translated_metrics:
-        for key, (description, explanation) in translated_metrics.items():
+        for key, (description, explanation, mitigation) in translated_metrics.items():
             translation_text += (
                 f"{key} ({description}): {explanation}\n\nMitigation:{mitigation}\n"
             )
