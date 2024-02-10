@@ -160,7 +160,7 @@ def translate_cvss31_vector(cvss_vector):
 
 
 # Streamlit app UI enhancements
-st.title("CVSS 3.1 Vector Translator with Detailed Explanations")
+st.title("CVSS 3.1 Vector Translator")
 
 # Example CVSS Vector Button and User Input Field
 user_input = st.text_input("Enter CVSS 3.1 Vector String", "")
