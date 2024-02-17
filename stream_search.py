@@ -1,8 +1,11 @@
+import html
 import re
 
 import pandas as pd
+import pyperclip
 import requests
 import streamlit as st
+from pretty_html_table import build_table
 
 CSS_FILE = "style.css"
 # Set page configuration to wide layout
@@ -12,11 +15,6 @@ st.set_page_config(
     layout="wide",
     page_icon="favicon.png",
 )
-
-CSS_FILE = "style.css"
-# Apply custom CSS
-with open(CSS_FILE) as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Define a dictionary of sites to search
 sites = {
@@ -120,10 +118,8 @@ if st.button("Search"):
                     ],
                 )
             elif "entries" in data:
-                pd.options.display.int_format = "{}".format
                 new_df = pd.DataFrame(data["entries"])
             else:
-                pd.options.display.int_format = "{}".format
                 new_df = pd.DataFrame()
 
             # Check if the DataFrame is empty
@@ -132,7 +128,7 @@ if st.button("Search"):
             else:
                 # Concatenate the new data with the existing DataFrame
                 st.session_state.df = pd.concat([st.session_state.df, new_df])
-        # st.success("Search completed.")
+                st.success("Search completed.")
     else:
         st.warning("Please enter at least one search term.")
 
@@ -170,8 +166,6 @@ if "df" in st.session_state and not st.session_state.df.empty:
             # Add a button to generate HTML
         if st.button("Generate HTML"):
             # Convert selected columns of DataFrame to HTML and allow user to copy it
-            html = st.session_state.df[columns_to_export].to_html(index=False)
-            st.text_area("HTML Table", html, height=300)
-# Add a button to clear the search box
-# if st.button("Clear Search Box"):
-#    search_terms = ""
+            html = st.session_state.df[columns_to_export]
+            html_out = build_table(html, "blue_light")
+            pyperclip.copy(html_out)
