@@ -1,0 +1,9 @@
+import pandas as pd
+
+# Assuming df is your DataFrame and it has columns like 'date1', 'date2' etc.
+df = pd.DataFrame()  # fill this with your actual data
+
+for col in df.columns:
+    if "date" in col:
+        df[col] = pd.to_datetime(df[col])
+
