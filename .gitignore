@@ -13,3 +13,4 @@ __pycache__/
 app.sh
 .vscode/
 mirror/
+Tools/customers-10000.csv

@@ -24,7 +24,6 @@ sites = {
     },
     "CVE Lookup": {
         "url": ("https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=", ""),
-        "headers": {"Accept": "application/json"},
     },
 }
 
@@ -55,22 +54,20 @@ if st.button("Search"):
 
         # Get the base URL and URL suffix for the selected site
         base_url, url_suffix = sites[site_name]["url"]
-        headers = sites[site_name]["headers"]
+        # headers = sites[site_name]["headers"]
 
         # Make the HTTP request
         for term in search_terms:
             with st.spinner(f'Searching for "{term}"...'):
 
                 @st.cache_data
-                def fetch_data(base_url, term, url_suffix, headers):
-                    response = requests.get(
-                        f"{base_url}{term}{url_suffix}", headers=headers
-                    )
+                def fetch_data(base_url, term, url_suffix):
+                    response = requests.get(f"{base_url}{term}")
                     return response.json()
 
                     # Call the fetch_data function and assign its return value to data
 
-            data = fetch_data(base_url, term, url_suffix, headers)
+            data = fetch_data(base_url, term, url_suffix)
 
             if "vulnerabilities" in data:
                 vulnerabilities = data["vulnerabilities"]

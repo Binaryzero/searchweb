@@ -1,5 +1,4 @@
-# Import necessary libraries
-from io import BytesIO, StringIO
+from io import BytesIO
 
 import pandas as pd
 import streamlit as st
@@ -22,35 +21,38 @@ def main():
             elif uploaded_file.name.endswith((".xls", ".xlsx")):
                 df = pd.read_excel(uploaded_file)
 
-            # Display the original dataframe in a table format
-            st.dataframe(df)
-
-            # Get list of column names for dropdown menu
             cols = df.columns.tolist()
 
-            # Add a multiselect widget to select columns
             selected_cols = st.multiselect("Select Columns", cols)
 
             if len(selected_cols) > 0:
-                # Get user input for search parameter
                 search_param = st.text_input("Enter Search Parameter")
 
-                # Add a button to filter dataframe
-                if st.button("Filter"):
-                    if search_param:  # If search parameter is not empty
-                        filtered_df = df[
-                            df[selected_cols].apply(
-                                lambda x: str(x)
-                                .lower()
-                                .__contains__(search_param.lower()),
-                                axis=1,
-                            )
-                        ]
+                # Define filtered_df only when user clicks on "Filter" button
+                filtered_df = df[
+                    df[selected_cols].apply(
+                        lambda x: str(x).lower().__contains__(search_param.lower()),
+                        axis=1,
+                    )
+                ]
 
-                        # Display the filtered dataframe in a table format
-                        st.dataframe(filtered_df)
-                    else:  # If search parameter is empty, display original df
-                        st.dataframe(df)
+                if st.button("Filter"):
+                    # Display the filtered dataframe in a table format
+                    st.dataframe(filtered_df)
+
+                if st.button("Export to Excel"):
+
+                    # Convert the filtered DataFrame back to bytes, ready for download
+                    with BytesIO() as buffer:
+                        filtered_df.to_excel(buffer, index=False)
+                        buffer.seek(0)
+
+                        # Stream the contents of the file directly to the browser
+                        st.download_button(
+                            label="Download Excel File",
+                            data=buffer,
+                            file_name="filtered_dataframe.xlsx",
+                        )
         except Exception as e:
             st.error("Error reading file: {}".format(e))
 
