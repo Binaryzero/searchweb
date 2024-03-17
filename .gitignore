@@ -12,5 +12,6 @@ __pycache__/
 __pycache__/
 app.sh
 .vscode/
-mirror/
+/mirror/
 Tools/customers-10000.csv
+Tools/mirror/cve_database.db
